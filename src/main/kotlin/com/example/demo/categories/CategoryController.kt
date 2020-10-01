@@ -10,16 +10,16 @@ class CategoryController(private val categoriesService : CategoriesService) {
     @GetMapping
     fun getCategories() = categoriesService.getCategories()
 
-    @GetMapping("/{id}")
-    fun findCategoryById(@PathVariable id: Int) = categoriesService.findCategoryById(id)
+    @GetMapping("/{categoryId}")
+    fun getCategoryById(@PathVariable categoryId: Long) = categoriesService.getCategoryById(categoryId)
 
-    @DeleteMapping("/{id}")
-    fun deleteCategory(@PathVariable id: Int) = categoriesService.deleteCategory(id)
+    @DeleteMapping("/{categoryId}")
+    fun deleteCategory(@PathVariable categoryId: Long) = categoriesService.deleteCategory(categoryId)
 
     @PostMapping
-    fun createCategory(@RequestBody category:Category) = categoriesService.createCategory(category)
+    fun createCategory(@RequestBody category:Category) = categoriesService.addCategory(category)
 
-    @PutMapping("/{id}")
-    fun updateCategory(@PathVariable id:Int, @RequestParam categoryName: String) =
-            categoriesService.updateCategory(id, categoryName)
+    @PutMapping("/{categoryId}")
+    fun updateCategory(@PathVariable categoryId:Long, @RequestParam categoryName: String) =
+            categoriesService.putCategory(categoryId, Category(categoryId,categoryName))
 }

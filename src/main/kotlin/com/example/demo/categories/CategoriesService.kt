@@ -1,32 +1,38 @@
 package com.example.demo.categories
 
 import com.example.demo.bookmarks.Bookmark
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
-import java.awt.print.Book
 
 @Component
-class CategoriesService(private val categories: MutableList<Category> = mutableListOf()) {
+class CategoriesService(private val categoriesRepository: CategoriesRepository) {
 
-    fun getCategories() = categories
+    fun getCategories(): List<Category> = categoriesRepository.findAll()
 
-    fun findCategoryById(id:Int) = categories.firstOrNull{ it.id == id }
+    fun getCategoryById(categoryId: Long): ResponseEntity<Category> =
+            categoriesRepository.findById(categoryId).map { category ->
+                ResponseEntity.ok(category)
+            }.orElse(ResponseEntity.notFound().build())
 
-    fun updateCategory(id: Int, categoryName: String): Category? {
-        val category = categories.firstOrNull { it.id == id }
-        return if (category == null) category
-        else {
-            category.categoryName = categoryName
-            category
-        }
-    }
+    fun addCategory(category: Category): ResponseEntity<Category> =
+            ResponseEntity.ok(categoriesRepository.save(category))
 
-    fun deleteCategory(id: Int) = categories.removeIf { it.id == id }
+    fun putCategory(categoryId: Long, newCategory: Category): ResponseEntity<Category> =
+            categoriesRepository.findById(categoryId).map { currentCategory ->
+                val updatedCategory: Category =
+                        currentCategory
+                                .copy(
+                                        categoryName = newCategory.categoryName
+                                )
+                ResponseEntity.ok().body(categoriesRepository.save(updatedCategory))
+            }.orElse(ResponseEntity.notFound().build())
 
-    fun createCategory(category: Category): Category? {
-        categories.firstOrNull { it.categoryName == category.categoryName }?.let { return null }
-        val categoryWithMaxId = categories.maxBy { it.id }
-        val newId = if (categoryWithMaxId == null) 1 else categoryWithMaxId!!.id + 1
-        categories.add(Category(newId,category.categoryName))
-        return categories.last()
-    }
+    fun deleteCategory(categoryId: Long): ResponseEntity<Void> =
+            categoriesRepository.findById(categoryId).map { category ->
+                categoriesRepository.delete(category)
+                ResponseEntity<Void>(HttpStatus.ACCEPTED)
+            }.orElse(ResponseEntity.notFound().build())
+
+
 }

@@ -1,11 +1,7 @@
 package com.example.demo.bookmarks
 
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
-import org.springframework.stereotype.Controller
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.server.ResponseStatusException
-
 
 
 @RestController
@@ -13,29 +9,30 @@ import org.springframework.web.server.ResponseStatusException
 class BookmarkController(private  val bookmarksService: BookmarksService) {
 
     @GetMapping
-    fun getBookmarks(): List<Bookmark> = bookmarksService.getBookmarks().toList()
+    fun getBookmarks(): List<Bookmark> =
+            bookmarksService.getBookmarks()
 
     @GetMapping("/{id}")
-    fun findBookmarkById(@PathVariable("id") id: Int): Bookmark = bookmarksService.findBookmarkById(id)
+    fun getBookmarkById(@PathVariable("id") id: Long): ResponseEntity<Bookmark> =
+            bookmarksService.getBookmarkById(id)
 
-    @GetMapping("/categories/{category}")
-    fun findBookmarksByCategory(@PathVariable("category") category: String): List<Bookmark> =
-            bookmarksService.findBookmarksByCategory(category)
+    @GetMapping("/categories/{categoryId}")
+    fun getBookmarkByCategoryId(@PathVariable("categoryId") categoryId: Long): List<Bookmark>  =
+            bookmarksService.getBookmarkByCategoryId(categoryId)
 
     @PostMapping
-    fun addBookmark(@RequestBody bookmark: Bookmark): Boolean = bookmarksService.addBookmark(bookmark)
+    fun addBookmark(@RequestBody bookmark: Bookmark): ResponseEntity<Bookmark> =
+            bookmarksService.addBookmark(bookmark)
 
     @DeleteMapping("/{id}")
-    fun deleteBookmarkById(@PathVariable("id") id: Int): Boolean = bookmarksService.deleteBookmarkById(id)
+    fun deleteBookmark(@PathVariable("id") id: Long): ResponseEntity<Void> =
+            bookmarksService.deleteBookmark(id)
 
-    @PutMapping("/{id}")
+    @PutMapping("/{bookmarkId}")
     fun updateBookmark(
-            @PathVariable id: Int?,
+            @PathVariable bookmarkId: Long?,
             @RequestParam name: String?,
             @RequestParam url: String?,
-            @RequestParam category: String?): Bookmark {
-        if ((id == null) ) throw ResponseStatusException(HttpStatus.NOT_FOUND, "there isn't id")
-        if ((name == null) and (url == null) and (category == null) ) throw ResponseStatusException(HttpStatus.NOT_FOUND, "nothing to update")
-        return bookmarksService.updateBookmark(id, name, url,category )
-    }
+            @RequestParam categoryId: Long?): ResponseEntity<Bookmark> =
+            bookmarksService.putBookmark(bookmarkId!!, Bookmark(bookmarkId,name!!, url!!,categoryId!!))
 }

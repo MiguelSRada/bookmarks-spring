@@ -1,35 +1,43 @@
 package com.example.demo.bookmarks
 
-import jdk.nashorn.internal.objects.NativeArray.indexOf
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 
 @Component
-class BookmarksService(private val bookmarks: MutableList<Bookmark> = mutableListOf()) {
+class BookmarksService(private val bookmarksRepository: BookmarksRepository) {
 
-    fun getBookmarks() = bookmarks
+    fun getBookmarks(): List<Bookmark> = bookmarksRepository.findAll()
 
-    fun findBookmarkById(id: Int) = bookmarks.first { it.id == id }
+    fun getBookmarkById(bookmarkId: Long): ResponseEntity<Bookmark> =
+            bookmarksRepository.findById(bookmarkId).map { bookmark ->
+                ResponseEntity.ok(bookmark)
+            }.orElse(ResponseEntity.notFound().build())
 
-    fun findBookmarksByCategory(category: String) = bookmarks.filter { it.category == category }
+    fun getBookmarkByCategoryId(categoryId: Long): List<Bookmark> =
+            bookmarksRepository.findBookmarksByCategoryId(categoryId.toInt())
 
-    fun deleteBookmarkById(id: Int) = bookmarks.removeIf { it.id == id }
 
-    fun addBookmark(bookmark: Bookmark): Boolean {
-        bookmarks.firstOrNull { it.name == bookmark.name }?.let { return false }
-        val bookmarkWithMaxId = bookmarks.maxBy { it.id }
-        val newId = if (bookmarkWithMaxId == null) 1 else bookmarkWithMaxId!!.id + 1
-        bookmarks.add(Bookmark(newId,bookmark.name,bookmark.url,bookmark.category))
-        return true
-    }
+    fun addBookmark(bookmark: Bookmark): ResponseEntity<Bookmark> =
+            ResponseEntity.ok(bookmarksRepository.save(bookmark))
 
-    fun updateBookmark(id: Int, name: String? = null, url: String? = null, category: String? = null): Bookmark {
-        bookmarks.firstOrNull { it.id == id }?.let {
-            if (name != null) it.name = name
-            if (url != null) it.url = url
-            if (category != null) it.category = category
-        }
-        return bookmarks.first { it.id == id }
+    fun putBookmark(bookmarkId: Long, newBookmark: Bookmark): ResponseEntity<Bookmark> =
+            bookmarksRepository.findById(bookmarkId).map { currentBookmark ->
+                val updateBookmark: Bookmark =
+                        currentBookmark
+                                .copy(
+                                        name = newBookmark.name,
+                                        url = newBookmark.url,
+                                        categoryId = newBookmark.categoryId
+                                )
+                ResponseEntity.ok().body(bookmarksRepository.save(updateBookmark))
+            }.orElse(ResponseEntity.notFound().build())
 
-    }
+    fun deleteBookmark(bookmarkId: Long): ResponseEntity<Void> =
+            bookmarksRepository.findById(bookmarkId).map { bookmark ->
+                bookmarksRepository.delete(bookmark)
+                ResponseEntity<Void>(HttpStatus.ACCEPTED)
+            }.orElse(ResponseEntity.notFound().build())
+
+
 }

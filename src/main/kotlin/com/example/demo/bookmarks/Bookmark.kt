@@ -1,6 +1,17 @@
 package com.example.demo.bookmarks
 
-import org.springframework.context.annotation.Bean
+import javax.persistence.*
+
+@Entity
+@Table(name = "bookmarks")
+data class Bookmark(
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        val id: Long,
+        val name:String,
+        val url : String,
+        @ManyToOne
+        val categoryId: Int
+)
 
 
-data class Bookmark(val id: Int, var name:String, var url : String, var category: String)
