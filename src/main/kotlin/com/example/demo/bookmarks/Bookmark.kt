@@ -1,17 +1,18 @@
 package com.example.demo.bookmarks
 
+import com.example.demo.categories.Category
 import javax.persistence.*
 
 @Entity
 @Table(name = "bookmarks")
-data class Bookmark(
+class Bookmark(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        val id: Long,
-        val name:String,
-        val url : String,
+        val id: Int,
+        var name:String,
+        var url : String,
         @ManyToOne
-        val categoryId: Int
+        var category : Category
 )
 
 

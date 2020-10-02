@@ -4,35 +4,34 @@ import com.example.demo.bookmarks.Bookmark
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
+import java.util.*
 
 @Component
 class CategoriesService(private val categoriesRepository: CategoriesRepository) {
 
     fun getCategories(): List<Category> = categoriesRepository.findAll()
 
-    fun getCategoryById(categoryId: Long): ResponseEntity<Category> =
-            categoriesRepository.findById(categoryId).map { category ->
-                ResponseEntity.ok(category)
-            }.orElse(ResponseEntity.notFound().build())
+    fun getCategoryById(categoryId: Int): Optional<Category> =
+            categoriesRepository.findById(categoryId.toLong())
 
-    fun addCategory(category: Category): ResponseEntity<Category> =
-            ResponseEntity.ok(categoriesRepository.save(category))
+    fun addCategory(category: Category): Category =
+            categoriesRepository.save(category)
 
-    fun putCategory(categoryId: Long, newCategory: Category): ResponseEntity<Category> =
-            categoriesRepository.findById(categoryId).map { currentCategory ->
+    fun putCategory(categoryId: Int, newCategory: Category): Category? =
+            categoriesRepository.findById(categoryId.toLong()).map { currentCategory ->
                 val updatedCategory: Category =
                         currentCategory
-                                .copy(
-                                        categoryName = newCategory.categoryName
-                                )
-                ResponseEntity.ok().body(categoriesRepository.save(updatedCategory))
-            }.orElse(ResponseEntity.notFound().build())
+                                .apply {
+                                    categoryName = newCategory.categoryName
+                                }
+                categoriesRepository.save(updatedCategory)
+            }.orElse(null)
 
-    fun deleteCategory(categoryId: Long): ResponseEntity<Void> =
+    fun deleteCategory(categoryId: Long):Boolean =
             categoriesRepository.findById(categoryId).map { category ->
                 categoriesRepository.delete(category)
-                ResponseEntity<Void>(HttpStatus.ACCEPTED)
-            }.orElse(ResponseEntity.notFound().build())
+                true
+            }.orElse(false)
 
 
 }

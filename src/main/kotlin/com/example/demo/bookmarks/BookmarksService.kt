@@ -1,43 +1,40 @@
 package com.example.demo.bookmarks
 
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
+import com.example.demo.categories.Category
 import org.springframework.stereotype.Component
+import java.util.*
 
 @Component
 class BookmarksService(private val bookmarksRepository: BookmarksRepository) {
 
     fun getBookmarks(): List<Bookmark> = bookmarksRepository.findAll()
 
-    fun getBookmarkById(bookmarkId: Long): ResponseEntity<Bookmark> =
-            bookmarksRepository.findById(bookmarkId).map { bookmark ->
-                ResponseEntity.ok(bookmark)
-            }.orElse(ResponseEntity.notFound().build())
+    fun getBookmarkById(bookmarkId: Int): Optional<Bookmark> =
+            bookmarksRepository.findById(bookmarkId.toLong())
 
-    fun getBookmarkByCategoryId(categoryId: Long): List<Bookmark> =
-            bookmarksRepository.findBookmarksByCategoryId(categoryId.toInt())
+    fun getBookmarkByCategoryId(categoryId: Int): List<Bookmark> =
+            bookmarksRepository.findBookmarksByCategoryId(categoryId)
 
+    fun addBookmark(bookmark: Bookmark): Bookmark =
+            bookmarksRepository.save(bookmark)
 
-    fun addBookmark(bookmark: Bookmark): ResponseEntity<Bookmark> =
-            ResponseEntity.ok(bookmarksRepository.save(bookmark))
-
-    fun putBookmark(bookmarkId: Long, newBookmark: Bookmark): ResponseEntity<Bookmark> =
-            bookmarksRepository.findById(bookmarkId).map { currentBookmark ->
+    fun putBookmark(bookmarkId: Int, newName: String?, newUrl: String?, newCategory: Category?): Bookmark? =
+            bookmarksRepository.findById(bookmarkId.toLong()).map { currentBookmark ->
                 val updateBookmark: Bookmark =
                         currentBookmark
-                                .copy(
-                                        name = newBookmark.name,
-                                        url = newBookmark.url,
-                                        categoryId = newBookmark.categoryId
-                                )
-                ResponseEntity.ok().body(bookmarksRepository.save(updateBookmark))
-            }.orElse(ResponseEntity.notFound().build())
+                                .apply {
+                                    newName?.let { name = newName }
+                                    newUrl?.let { url = newUrl }
+                                    newCategory?.let { category = newCategory }
+                                }
+                bookmarksRepository.save(updateBookmark)
+            }.orElse(null)
 
-    fun deleteBookmark(bookmarkId: Long): ResponseEntity<Void> =
+    fun deleteBookmark(bookmarkId: Long): Boolean =
             bookmarksRepository.findById(bookmarkId).map { bookmark ->
                 bookmarksRepository.delete(bookmark)
-                ResponseEntity<Void>(HttpStatus.ACCEPTED)
-            }.orElse(ResponseEntity.notFound().build())
+                true
+            }.orElse(false)
 
 
 }
