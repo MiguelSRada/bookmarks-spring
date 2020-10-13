@@ -8,10 +8,12 @@ import javax.persistence.*
 class Category(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        val id: Int,
+        val id: Long,
+
+        @Column(name= "categoryName")
         var categoryName: String
 ){
-        @OneToMany(mappedBy = "categoryId",fetch = FetchType.LAZY)
+        @OneToMany(mappedBy = "category",fetch = FetchType.LAZY)
         val bookmarks: List<Bookmark> = emptyList()
 
 }

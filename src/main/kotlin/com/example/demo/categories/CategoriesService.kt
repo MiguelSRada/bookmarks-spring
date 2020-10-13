@@ -11,14 +11,14 @@ class CategoriesService(private val categoriesRepository: CategoriesRepository) 
 
     fun getCategories(): List<Category> = categoriesRepository.findAll()
 
-    fun getCategoryById(categoryId: Int): Optional<Category> =
-            categoriesRepository.findById(categoryId.toLong())
+    fun getCategoryById(categoryId: Long): Optional<Category> =
+            categoriesRepository.findById(categoryId)
 
     fun addCategory(category: Category): Category =
             categoriesRepository.save(category)
 
-    fun putCategory(categoryId: Int, newCategory: Category): Category? =
-            categoriesRepository.findById(categoryId.toLong()).map { currentCategory ->
+    fun putCategory(categoryId: Long, newCategory: Category): Category? =
+            categoriesRepository.findById(categoryId).map { currentCategory ->
                 val updatedCategory: Category =
                         currentCategory
                                 .apply {
@@ -27,7 +27,7 @@ class CategoriesService(private val categoriesRepository: CategoriesRepository) 
                 categoriesRepository.save(updatedCategory)
             }.orElse(null)
 
-    fun deleteCategory(categoryId: Long):Boolean =
+    fun deleteCategory(categoryId: Long): Boolean =
             categoriesRepository.findById(categoryId).map { category ->
                 categoriesRepository.delete(category)
                 true

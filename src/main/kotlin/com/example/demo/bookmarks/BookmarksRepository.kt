@@ -7,5 +7,5 @@ import javax.transaction.Transactional
 @Repository
 @Transactional(Transactional.TxType.MANDATORY)
 interface BookmarksRepository : JpaRepository<Bookmark, Long> {
-    fun findBookmarksByCategoryId(categoryId: Int): List<Bookmark>
+    fun findBookmarksByCategoryId(categoryId: Long): List<Bookmark>
 }

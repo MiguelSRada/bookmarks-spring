@@ -9,17 +9,17 @@ class BookmarksService(private val bookmarksRepository: BookmarksRepository) {
 
     fun getBookmarks(): List<Bookmark> = bookmarksRepository.findAll()
 
-    fun getBookmarkById(bookmarkId: Int): Optional<Bookmark> =
-            bookmarksRepository.findById(bookmarkId.toLong())
+    fun getBookmarkById(bookmarkId: Long): Optional<Bookmark> =
+            bookmarksRepository.findById(bookmarkId)
 
-    fun getBookmarkByCategoryId(categoryId: Int): List<Bookmark> =
+    fun getBookmarkByCategoryId(categoryId: Long): List<Bookmark> =
             bookmarksRepository.findBookmarksByCategoryId(categoryId)
 
     fun addBookmark(bookmark: Bookmark): Bookmark =
             bookmarksRepository.save(bookmark)
 
-    fun putBookmark(bookmarkId: Int, newName: String?, newUrl: String?, newCategory: Category?): Bookmark? =
-            bookmarksRepository.findById(bookmarkId.toLong()).map { currentBookmark ->
+    fun putBookmark(bookmarkId: Long, newName: String?, newUrl: String?, newCategory: Category?): Bookmark? =
+            bookmarksRepository.findById(bookmarkId).map { currentBookmark ->
                 val updateBookmark: Bookmark =
                         currentBookmark
                                 .apply {

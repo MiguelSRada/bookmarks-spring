@@ -8,10 +8,11 @@ import javax.persistence.*
 class Bookmark(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        val id: Int,
+        val id: Long,
         var name:String,
         var url : String,
         @ManyToOne
+        @JoinColumn(name = "categoryId")
         var category : Category
 )
 

@@ -11,22 +11,22 @@ import org.springframework.web.bind.annotation.*
 class BookmarkController(private val bookmarksService: BookmarksService) {
 
     @GetMapping
-    fun getBookmarks(): ResponseEntity<List<Bookmark>> =
-            ResponseEntity.ok(bookmarksService.getBookmarks())
+    fun getBookmarks(): List<BookmarkDTO> =
+            bookmarksService.getBookmarks().map { fromEntity(it) }
 
     @GetMapping("/{id}")
-    fun getBookmarkById(@PathVariable("id") id: Int): ResponseEntity<Bookmark> =
+    fun getBookmarkById(@PathVariable("id") id: Long): ResponseEntity<BookmarkDTO> =
             bookmarksService.getBookmarkById(id)
-                    .map { category -> ResponseEntity.ok(category) }
+                    .map { bookmark -> ResponseEntity.ok((fromEntity(bookmark))) }
                     .orElse(ResponseEntity.notFound().build())
 
     @GetMapping("/categories/{categoryId}")
-    fun getBookmarkByCategoryId(@PathVariable("categoryId") categoryId: Int): ResponseEntity<List<Bookmark>> =
-            ResponseEntity.ok(bookmarksService.getBookmarkByCategoryId(categoryId))
+    fun getBookmarkByCategoryId(@PathVariable("categoryId") categoryId: Long): List<BookmarkDTO> =
+            bookmarksService.getBookmarkByCategoryId(categoryId).map { fromEntity(it) }
 
     @PostMapping
-    fun addBookmark(@RequestBody bookmark: Bookmark): ResponseEntity<Bookmark> =
-            ResponseEntity.ok(bookmarksService.addBookmark(bookmark))
+    fun addBookmark(@RequestBody bookmark: Bookmark): BookmarkDTO =
+            fromEntity(bookmarksService.addBookmark(bookmark))
 
     @DeleteMapping("/{id}")
     fun deleteBookmark(@PathVariable("id") id: Long): ResponseEntity<Void> =
@@ -36,7 +36,7 @@ class BookmarkController(private val bookmarksService: BookmarksService) {
 
     @PutMapping("/{bookmarkId}")
     fun updateBookmark(
-            @PathVariable bookmarkId: Int,
+            @PathVariable bookmarkId: Long,
             @RequestParam newName: String?,
             @RequestParam newUrl: String?,
             @RequestParam newCategory: Category?): ResponseEntity<Bookmark> =
