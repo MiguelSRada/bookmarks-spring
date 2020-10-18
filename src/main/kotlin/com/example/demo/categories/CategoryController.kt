@@ -1,6 +1,5 @@
 package com.example.demo.categories
 
-import com.example.demo.bookmarks.Bookmark
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -11,8 +10,8 @@ import org.springframework.web.bind.annotation.*
 class CategoryController(private val categoriesService: CategoriesService) {
 
     @GetMapping
-    fun getCategories(): List<CategoryDTO> =
-            categoriesService.getCategories().map { fromEntity(it) }
+    fun getCategories(@RequestParam categoryName: String?): List<CategoryResponse?> =
+            categoriesService.getCategories(categoryName).map { fromEntity(it) }
 
     @GetMapping("/{categoryId}")
     fun getCategoryById(@PathVariable categoryId: Long): ResponseEntity<Category> =
@@ -26,10 +25,10 @@ class CategoryController(private val categoriesService: CategoriesService) {
             else ResponseEntity.notFound().build()
 
     @PostMapping
-    fun createCategory(@RequestBody category: Category): ResponseEntity<Category> =
-            ResponseEntity.ok(categoriesService.addCategory(category))
+    fun createCategory(@RequestBody category: Category): CategoryResponse? =
+            fromEntity(categoriesService.addCategory(category))
 
     @PutMapping("/{categoryId}")
     fun updateCategory(@PathVariable categoryId: Long, @RequestParam categoryName: String) =
-            categoriesService.putCategory(categoryId, Category(categoryId, categoryName))
+            fromEntity(categoriesService.putCategory(categoryId, Category(categoryId, categoryName)))
 }

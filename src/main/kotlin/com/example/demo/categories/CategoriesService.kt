@@ -1,21 +1,25 @@
 package com.example.demo.categories
 
-import com.example.demo.bookmarks.Bookmark
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
 @Component
+@Transactional
 class CategoriesService(private val categoriesRepository: CategoriesRepository) {
 
-    fun getCategories(): List<Category> = categoriesRepository.findAll()
+    fun getCategories(categoryName: String?): List<Category> {
+        return if (categoryName == null) {
+            categoriesRepository.findAll()
+        } else categoriesRepository.findByCategoryName(categoryName)
+    }
 
     fun getCategoryById(categoryId: Long): Optional<Category> =
             categoriesRepository.findById(categoryId)
 
     fun addCategory(category: Category): Category =
-            categoriesRepository.save(category)
+            categoriesRepository.findByCategoryName(category.categoryName).firstOrNull()
+                ?: categoriesRepository.save(category)
 
     fun putCategory(categoryId: Long, newCategory: Category): Category? =
             categoriesRepository.findById(categoryId).map { currentCategory ->
@@ -32,6 +36,4 @@ class CategoriesService(private val categoriesRepository: CategoriesRepository) 
                 categoriesRepository.delete(category)
                 true
             }.orElse(false)
-
-
 }

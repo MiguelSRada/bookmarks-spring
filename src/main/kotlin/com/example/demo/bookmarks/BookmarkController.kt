@@ -11,21 +11,21 @@ import org.springframework.web.bind.annotation.*
 class BookmarkController(private val bookmarksService: BookmarksService) {
 
     @GetMapping
-    fun getBookmarks(): List<BookmarkDTO> =
-            bookmarksService.getBookmarks().map { fromEntity(it) }
+    fun getBookmarks(): List<BookmarkResponse> =
+            bookmarksService.getBookmarks()
 
     @GetMapping("/{id}")
-    fun getBookmarkById(@PathVariable("id") id: Long): ResponseEntity<BookmarkDTO> =
+    fun getBookmarkById(@PathVariable("id") id: Long): ResponseEntity<BookmarkResponse> =
             bookmarksService.getBookmarkById(id)
                     .map { bookmark -> ResponseEntity.ok((fromEntity(bookmark))) }
                     .orElse(ResponseEntity.notFound().build())
 
     @GetMapping("/categories/{categoryId}")
-    fun getBookmarkByCategoryId(@PathVariable("categoryId") categoryId: Long): List<BookmarkDTO> =
-            bookmarksService.getBookmarkByCategoryId(categoryId).map { fromEntity(it) }
+    fun getBookmarkByCategoryId(@PathVariable("categoryId") categoryId: Long): List<BookmarkResponse> =
+            bookmarksService.getBookmarkByCategoryId(categoryId)
 
     @PostMapping
-    fun addBookmark(@RequestBody bookmark: Bookmark): BookmarkDTO =
+    fun addBookmark(@RequestBody bookmark: Bookmark): BookmarkResponse =
             fromEntity(bookmarksService.addBookmark(bookmark))
 
     @DeleteMapping("/{id}")

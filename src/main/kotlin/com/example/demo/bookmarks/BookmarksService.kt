@@ -1,19 +1,24 @@
 package com.example.demo.bookmarks
 
+import com.example.demo.categories.CategoriesRepository
+import com.example.demo.categories.CategoriesService
 import com.example.demo.categories.Category
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
 @Component
+@Transactional
 class BookmarksService(private val bookmarksRepository: BookmarksRepository) {
 
-    fun getBookmarks(): List<Bookmark> = bookmarksRepository.findAll()
+    fun getBookmarks(): List<BookmarkResponse> =
+            bookmarksRepository.findAll().map { fromEntity(it) }
 
     fun getBookmarkById(bookmarkId: Long): Optional<Bookmark> =
             bookmarksRepository.findById(bookmarkId)
 
-    fun getBookmarkByCategoryId(categoryId: Long): List<Bookmark> =
-            bookmarksRepository.findBookmarksByCategoryId(categoryId)
+    fun getBookmarkByCategoryId(categoryId: Long): List<BookmarkResponse> =
+            bookmarksRepository.findBookmarksByCategoryId(categoryId).map { fromEntity(it) }
 
     fun addBookmark(bookmark: Bookmark): Bookmark =
             bookmarksRepository.save(bookmark)
